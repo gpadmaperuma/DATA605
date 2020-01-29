@@ -1,0 +1,120 @@
+---
+title: "Assignment 1"
+author: "Don Padmaperuma (Geeth)"
+date: "1/27/2020"
+output: 
+  html_document:
+    toc: True
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(pracma)
+```
+
+
+## 1. Problem set 1
+
+### (1) Calculate the dot product u.v where u = [0.5;0.5] and v = [3;-4]
+
+
+```{r}
+
+u <- c(0.5, 0.5)
+v <- c(3, -4)
+
+dot_uv <- dot(u, v)
+dot_uv
+```
+
+### (2) What are the lengths of u and v? Please note that the mathematical notion of the length of a vector is not the same as a computer science definition.
+
+```{r}
+len_u <- sqrt(u[1]^2+u[2]^2)
+len_v <- sqrt(v[1]^2+v[2]^2)
+len_u;
+len_v
+```
+
+### (3) What is the linear combination: 3u − 2v?
+
+```{r}
+3*u - 2*v
+```
+
+### (4) What is the angle between u and v
+
+```{r}
+cos_theta <- dot_uv/(len_u*len_v)
+cos_theta
+```
+```{r}
+angle_theta <- (180/pi)*acos(cos_theta)
+angle_theta
+```
+
+## 2. Problem set 2
+
+Set up a system of equations with 3 variables and 3 constraints and solve for x. Please
+write a function in R that will take two variables (matrix A & constraint vector b) and
+solve using elimination. Your function should produce the right answer for the system of
+equations for any 3-variable, 3-equation system. You don’t have to worry about degenerate
+cases and can safely assume that the function will only be tested with a system of equations
+that has a solution. Please note that you do have to worry about zero pivots, though. Please
+note that you should not use the built-in function solve to solve this system or use matrix
+inverses. The approach that you should employ is to construct an Upper Triangular Matrix
+and then back-substitute to get the solution. Alternatively, you can augment the matrix
+A with vector b and jointly apply the Gauss Jordan elimination procedure.
+
+
+```{r}
+# Creating a matrix A and constrant b
+A <- matrix(c(1, 2, -1, 1, -1, -2, 3, 5, 4), nrow=3, ncol=3) 
+b <- matrix(c(1, 2, 6), nrow=3, ncol=1)
+
+A;
+b
+```
+
+Function for Guassian Elimination   
+Reference:   
+[https://stackoverflow.com/questions/16044377/how-to-do-gaussian-elimination-in-r-do-not-use-solve]
+[https://martin-thoma.com/solving-linear-equations-with-gaussian-elimination/]
+
+```{r}
+x = function(A, b){
+  r <- dim(A)[1]
+  c <- dim(A)[2]+dim(b)[2]
+  UT <- matrix(c(A, b), nrow=r, ncol=c)
+  for (j in 1:(c-2)) {
+    for (i in (j+1):r) {
+      UT[i,] <- UT[i,]-UT[j,]*UT[i,j]/UT[j,j]  
+    }
+  }
+  UT[r,] <- UT[r,]/UT[r,r]
+  xn <- numeric(r)
+  xn[r] = UT[r,c]
+  for (k in (r-1):1) {
+    t = 0
+    for (m in (k+1):r) {
+      s = UT[k,m]*xn[m]
+      t = t + s
+    }
+    xn[k] = (UT[k,c] - t) / UT[k,k]
+  }
+  x <- round(xn,2)
+return(x)
+}
+```
+
+
+test the function with the matrix A and constraint vector b above and it should produce a solution x = [−1.55, −0.32, 0.95]
+
+```{r}
+x(A,b)
+```
+
